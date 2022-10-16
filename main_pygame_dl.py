@@ -16,6 +16,8 @@ _map_shape = (72,72)
 CHANNEL_N = 16
 CELL_FIRE_RATE = 0.5
 model_path = "models/grav.pth"
+paths = ["models/grav.pth", "models/cradle.pth"]
+path_i = 0
 device = torch.device("cpu")
 h, w = _map_shape
 _rows = np.arange(_map_shape[0]).repeat(_map_shape[1]).reshape([_map_shape[0],_map_shape[1]])
@@ -40,6 +42,22 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                _map = np.zeros([h,w, CHANNEL_N], np.float32)
+                seed_img = load_image("../data/grav0.png", resize_shape=(h, w))
+                _map[:, :, :4] = seed_img
+                output = model(torch.from_numpy(_map.reshape([1,_map_shape[0],_map_shape[1],CHANNEL_N]).astype(np.float32)), 1)
+                
+
+            elif event.key == pygame.K_n:
+                path_i = (path_i + 1) % len(paths)
+                print("Loading model: ", paths[path_i])
+                model_path = paths[path_i]
+                model = CAModel(CHANNEL_N, CELL_FIRE_RATE, device).to(device)
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+                
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
