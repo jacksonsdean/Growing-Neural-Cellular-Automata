@@ -4,7 +4,7 @@ import torch
 import numpy as np
 
 from lib.displayer import displayer
-from lib.utils import mat_distance
+from lib.utils import mat_distance, load_image
 from lib.CAModel import CAModel
 from lib.utils_vis import to_rgb, make_seed
 
@@ -17,12 +17,15 @@ CHANNEL_N = 16
 CELL_FIRE_RATE = 0.5
 model_path = "models/grav.pth"
 device = torch.device("cpu")
-
+h, w = _map_shape
 _rows = np.arange(_map_shape[0]).repeat(_map_shape[1]).reshape([_map_shape[0],_map_shape[1]])
 _cols = np.arange(_map_shape[1]).reshape([1,-1]).repeat(_map_shape[0],axis=0)
 _map_pos = np.array([_rows,_cols]).transpose([1,2,0])
 
-_map = make_seed(_map_shape, CHANNEL_N)
+# _map = make_seed(_map_shape, CHANNEL_N)
+_map = np.zeros([h,w, CHANNEL_N], np.float32)
+seed_img = load_image("../data/grav0.png", resize_shape=(h, w))
+_map[:, :, :4] = seed_img
 
 model = CAModel(CHANNEL_N, CELL_FIRE_RATE, device).to(device)
 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
