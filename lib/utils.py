@@ -1,4 +1,6 @@
 import numpy as np
+from skimage.transform import resize
+import imageio
 
 def tup_distance(node1, node2, mode="Euclidean"):
     """
@@ -21,3 +23,9 @@ def mat_distance(mat1, mat2, mode="Euclidean"):
         return np.sum(np.abs(mat1-mat2), axis=-1)
     else:
         raise ValueError("Unrecognized distance mode: "+mode)
+
+def load_image(path, resize_shape=(TARGET_SIZE, TARGET_SIZE)):
+    im = imageio.imread(path)
+    im = resize(im, resize_shape)
+    im = np.array(im[:,:]).astype(np.float32)
+    return im
